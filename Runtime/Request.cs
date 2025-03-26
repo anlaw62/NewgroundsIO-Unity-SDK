@@ -25,17 +25,21 @@ namespace Newgrounds
             get => debug;
             set => debug = value;
         }
-
+        public ExecuteObject ExecuteObj
+        {
+            get => execute;
+            set=>execute = value;
+        }
         [CreateProperty]
         private string debug;
         [CreateProperty]
         private string session_id;
         [CreateProperty]
         private string app_id;
-
-
+        [CreateProperty]
+        private ExecuteObject execute;
         [GeneratePropertyBag]
-        internal partial class ExecuteComponent
+        internal partial class ExecuteObject
         {
             public string Echo
             {
