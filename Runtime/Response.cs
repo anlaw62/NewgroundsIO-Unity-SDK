@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Unity.Properties;
 using UnityEngine;
 namespace Newgrounds
 {
     [GeneratePropertyBag]
-    internal partial class Response
+    internal partial class Response<ResultDataType>
     {
         public bool Success => success;
         public ErrorObject Error => error;
@@ -29,9 +30,9 @@ namespace Newgrounds
         [GeneratePropertyBag]
         public partial class ResultObject
         {
-            public object Data => data;
+            public Dictionary<string, ResultDataType> Data => data;
             [CreateProperty]
-            private object data;
+            private Dictionary<string, ResultDataType> data;
         }
     }
 }
