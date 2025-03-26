@@ -8,6 +8,7 @@ namespace Newgrounds
         public bool Expired => expired;
         public string Id => id;
         public string PassportUrl => passport_url;
+        public User User => user;
 
         [CreateProperty]
         private bool expired;
@@ -15,6 +16,8 @@ namespace Newgrounds
         private string id;
         [CreateProperty]
         private string passport_url;
+        [CreateProperty]
+        private User user;
 
     }
 }
