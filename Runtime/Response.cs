@@ -8,11 +8,13 @@ namespace Newgrounds
     {
         public bool Success => success;
         public ErrorObject Error => error;
+        public ResultObject Result => result;
         [CreateProperty]
         private bool success;
         [CreateProperty]
         private ErrorObject error;
-
+        [CreateProperty]
+        private ResultObject result;
        
         [GeneratePropertyBag]
         public partial class ErrorObject
@@ -25,7 +27,7 @@ namespace Newgrounds
             private string message;
         }
         [GeneratePropertyBag]
-        public partial class Result
+        public partial class ResultObject
         {
             public object Data => data;
             [CreateProperty]
