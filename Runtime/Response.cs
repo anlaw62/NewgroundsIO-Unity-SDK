@@ -24,5 +24,12 @@ namespace Newgrounds
             [CreateProperty]
             private string message;
         }
+        [GeneratePropertyBag]
+        public partial class Result
+        {
+            public object Data => data;
+            [CreateProperty]
+            private object data;
+        }
     }
 }
