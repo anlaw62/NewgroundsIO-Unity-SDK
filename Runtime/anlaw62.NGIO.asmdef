@@ -2,7 +2,8 @@
     "name": "NGIO",
     "rootNamespace": "",
     "references": [
-        "UniTask"
+        "UniTask",
+        "Unity.Serialization"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
