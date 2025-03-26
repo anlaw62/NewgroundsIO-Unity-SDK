@@ -1,8 +1,20 @@
+using Unity.Properties;
 using UnityEngine;
 namespace Newgrounds
 {
-    public class Session
+    [GeneratePropertyBag]
+    public partial class Session
     {
-        public int Id;
+        public bool Expired => expired;
+        public string Id => id;
+        public string PassportUrl => passport_url;
+
+        [CreateProperty]
+        private bool expired;
+        [CreateProperty]
+        private string id;
+        [CreateProperty]
+        private string passport_url;
+
     }
 }
