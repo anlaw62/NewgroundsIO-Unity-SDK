@@ -12,9 +12,11 @@ namespace Newgrounds
     public class NGIO
     {
         public static NGIO Instance { get; private set; }
-        public Session Session { get; private set; }
+        private Session session;
         public string AppId { get; }
         public byte[] AesKey { get; }
+        private UniTask sessionTask;
+
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
         public NGIO(string appId, string aesKey)
@@ -27,11 +29,11 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Encoding.UTF8.GetBytes(aesKey);
-            StartSesion()
-            .ContinueWith(s =>
-            {
-                Session = s;
-            }).Forget();
+            sessionTask = StartSesion()
+             .ContinueWith(s =>
+             {
+                 session = s;
+             });
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
 
         }
@@ -50,10 +52,22 @@ namespace Newgrounds
 
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="slotId">0-indexed number of slot</param>
+        /// <param name="saveData">json</param>
+        /// <returns></returns>
         public async UniTask SaveSlot(int slotId, string saveData)
         {
+            if (session == null)
+            {
+                Debug.LogError("SaveSlot Error : Session is Invalid");
+                return;
+            }
+
             DateTime now = DateTime.Now;
-            if((now - lastTimeSaved) < saveDelay)
+            if ((now - lastTimeSaved) < saveDelay)
             {
                 await UniTask.Yield();
             }
@@ -69,6 +83,17 @@ namespace Newgrounds
             await SendRequest(executeObj);
         }
 
+        public async UniTask<Session> GetSession()
+        {
+            await sessionTask;
+            return session;
+        }
+        public async UniTask<string[]> LoadSlots()
+        {
+            await sessionTask;
+            Response<List<SaveSlot>> resp = await SendRequest<List<SaveSlot>>(NewExecuteObject("CloudSave.loadSlots"));
+            return resp.Result.Data["slots"].ConvertAll(s => s.Data).ToArray();
+        }
         private async UniTask<Session> StartSesion()
         {
 
@@ -77,8 +102,9 @@ namespace Newgrounds
         }
 
 
-        private Request MakeRequest(Request.ExecuteObject executeObject)
+        private Request MakeRequest(Request.ExecuteObject executeObject, bool sesionID = false)
         {
+
             return new() { AppId = AppId, ExecuteObj = executeObject };
         }
         private Request.ExecuteObject NewExecuteObject(string component)
