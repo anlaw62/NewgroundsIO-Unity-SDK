@@ -71,6 +71,7 @@ namespace Newgrounds
                 {"value",value },
                 {"tag",tag }
             };
+            executeObject.Encrypt(AesKey,serializerSettings);
             await SendRequest(executeObject);
         }
         public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
