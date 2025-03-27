@@ -9,10 +9,10 @@ namespace Newgrounds
 {
     public class NGIO
     {
-        public static NGIO Instance {  get; private set; }
-        public Session Session {get; private set;}
-        public string AppId { get; private set; }
-        public string AesKey { get; private set; }
+        public static NGIO Instance { get; private set; }
+        public Session Session { get; private set; }
+        public string AppId { get;  }
+        public string AesKey { get; }
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
         public NGIO(string appId, string aesKey)
         {
