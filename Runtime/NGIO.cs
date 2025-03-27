@@ -36,6 +36,7 @@ namespace Newgrounds
                     
                 }
             };
+            serializerSettings.NullValueHandling = NullValueHandling.Ignore;
             sessionTaskSource = new();
             StartSesion()
             .ContinueWith(s =>
