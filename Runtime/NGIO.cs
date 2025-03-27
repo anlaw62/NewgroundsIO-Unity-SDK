@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Text;
 using UnityEngine.Networking;
 
@@ -9,10 +10,11 @@ namespace Newgrounds
     public class NGIO
     {
         public static NGIO Instance { get; private set; }
-        public Session session;
+        private Session session;
         public string AppId { get; }
         public byte[] AesKey { get; }
         private readonly UniTaskCompletionSource sessionTaskSource;
+        private JsonSerializerSettings serializerSettings;
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
@@ -26,6 +28,14 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Encoding.UTF8.GetBytes(aesKey);
+            serializerSettings = new()
+            {
+                Error = (object o,Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
+                {
+                    args.ErrorContext.Handled = true;
+                    
+                }
+            };
             sessionTaskSource = new();
             StartSesion()
             .ContinueWith(s =>
@@ -59,6 +69,7 @@ namespace Newgrounds
         /// <returns></returns>
         public async UniTask SaveSlot(int slotId, string saveData)
         {
+            slotId += 1;
             if (session == null)
             {
                 Debug.LogError("SaveSlot Error : Session is Invalid");
@@ -78,6 +89,7 @@ namespace Newgrounds
                 {"data",saveData }
             };
             lastTimeSaved = DateTime.Now;
+            Debug.LogError("Savly nax");
             await SendRequest(executeObj);
         }
 
@@ -87,6 +99,19 @@ namespace Newgrounds
             await sessionTaskSource.Task;
 
             return session;
+        }        /// <summary>
+                 /// 
+                 /// </summary>
+                 /// <param name="slotId">0-indexed number of slot</param>
+                 /// <returns></returns>
+        public async UniTask<string> LoadSlot(int slotId)
+        {
+            await GetSession();
+            slotId += 1;
+            Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
+            executeObject.Parameters= new() { {"id",slotId} };
+            Response<SaveSlot> resp = await SendRequest<SaveSlot>(executeObject);
+            return await LoadSlot(resp.Result.Data["slot"]);
         }
         public async UniTask<string[]> LoadSlots()
         {
@@ -142,7 +167,7 @@ namespace Newgrounds
        
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request))),
+                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request,serializerSettings))),
 
             };
             webRequest.SetRequestHeader("Content-Type", "application/json");
@@ -188,7 +213,7 @@ namespace Newgrounds
             {
                 string resJson = webRequest.downloadHandler.text;
            
-                Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson);
+                Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
                 if (!response.Success)
                 {
                     Debug.LogError(response.Error.Message);
