@@ -37,6 +37,8 @@ namespace Newgrounds
         }
         private UnityWebRequest pingWebRequest;
         private DateTime lastTimePing;
+        private DateTime lastTimeSaved;
+        private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
         private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(3);
         public async UniTask Ping()
         {
@@ -50,6 +52,12 @@ namespace Newgrounds
         }
         public async UniTask SaveSlot(int slotId, string saveData)
         {
+            DateTime now = DateTime.Now;
+            if((now - lastTimeSaved) < saveDelay)
+            {
+                await UniTask.Yield();
+            }
+
             Request.ExecuteObject executeObj = NewExecuteObject("CloudSave.setData");
             executeObj.Parameters = new()
             {
