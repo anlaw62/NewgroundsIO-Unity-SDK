@@ -155,7 +155,7 @@ namespace Newgrounds
                 {"data",saveData }
             };
             lastTimeSaved = DateTime.Now;
-            Debug.LogError("Savly nax");
+       executeObj.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObj);
         }
 
