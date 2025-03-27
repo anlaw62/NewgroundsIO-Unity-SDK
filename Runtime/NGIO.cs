@@ -69,6 +69,7 @@ namespace Newgrounds
         }
         public async UniTask UnlockMedal(int id)
         {
+            await GetSession();
             Request.ExecuteObject executeObject = NewExecuteObject("Medal.unlock");
             executeObject.Parameters = new()
             {
