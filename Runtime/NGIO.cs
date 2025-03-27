@@ -93,6 +93,7 @@ namespace Newgrounds
                 {"tag",tag },
                 {"userId",userId}
             };
+            executeObject.Encrypt(AesKey,serializerSettings);
             Response<Score[]> resp = await SendRequest<Score[]>(executeObject);
             return resp.Result.Data["scores"];
         }
