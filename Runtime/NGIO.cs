@@ -78,7 +78,6 @@ namespace Newgrounds
                 {"id",slotId },
                 {"data",saveData }
             };
-            executeObj.Encrypt(AesKey);
             lastTimeSaved = DateTime.Now;
             await SendRequest(executeObj);
         }
