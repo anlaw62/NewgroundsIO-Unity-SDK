@@ -61,6 +61,15 @@ namespace Newgrounds
 
             }
         }
+        public async UniTask UnlockMedal(int id)
+        {
+            Request.ExecuteObject executeObject = NewExecuteObject("Medal.unlock");
+            executeObject.Parameters = new()
+            {
+                {"id",id }
+            };
+            await SendRequest(executeObject);
+        }
         /// <summary>
         /// 
         /// </summary>
