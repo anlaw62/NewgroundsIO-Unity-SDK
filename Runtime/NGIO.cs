@@ -27,7 +27,7 @@ namespace Newgrounds
             }
             Instance = this;
             AppId = appId;
-            AesKey = Encoding.UTF8.GetBytes(aesKey);
+            AesKey = Convert.FromBase64String(aesKey);
             serializerSettings = new()
             {
                 Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
@@ -76,7 +76,8 @@ namespace Newgrounds
                 {"id",id }
             };
             executeObject.Encrypt(AesKey,serializerSettings);
-            await SendRequest(executeObject);
+          await SendRequest(executeObject);
+         
         }
 
         /// <summary>
