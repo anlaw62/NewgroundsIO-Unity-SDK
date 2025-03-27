@@ -42,9 +42,12 @@ namespace Newgrounds
 
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request.ExecuteObject executeObject)
         {
-            Request request = new() { AppId = AppId };
-            request.ExecuteObj = executeObject;
-          return await  SendRequest<ResultDataType>(request);
+            Request request = new()
+            {
+                AppId = AppId,
+                ExecuteObj = executeObject
+            };
+            return await  SendRequest<ResultDataType>(request);
         }
     
     
