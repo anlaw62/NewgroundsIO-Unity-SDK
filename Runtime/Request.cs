@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 namespace Newgrounds
@@ -64,27 +65,40 @@ namespace Newgrounds
             protected string component;
             [JsonProperty]
             private string secure;
-            public void Encrypt(byte[] key,JsonSerializerSettings jsonSerializerSettings)
+          private byte[] EncryptAES128(string plainText, byte[] key, byte[] iv)
             {
-                using (Aes aes = Aes.Create())
-                {
-                    aes.Key = key;
-                    aes.GenerateIV();
 
-                    using (var encryptor = aes.CreateEncryptor())
-                    using (var ms = new MemoryStream())
-                    using (var cryptoStream = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                    {
-                        byte[] input = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this));
-                        cryptoStream.Write(input, 0, input.Length);
-                        cryptoStream.FlushFinalBlock();
-                        secure = Convert.ToBase64String(ms.ToArray());
-                    }
-                    echo = default;
-                    component = default;
-                    parameters = default;
 
-                }
+                using Aes aesAlg = Aes.Create();
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.PKCS7;
+
+                using MemoryStream msEncrypt = new();
+                using CryptoStream csEncrypt = new(msEncrypt, aesAlg.CreateEncryptor(), CryptoStreamMode.Write);
+                using StreamWriter swEncrypt = new(csEncrypt);
+
+                swEncrypt.Write(plainText);
+                swEncrypt.Flush();
+                csEncrypt.FlushFinalBlock();
+
+                return msEncrypt.ToArray();
+            }
+
+            public void Encrypt(byte[] aesKey,JsonSerializerSettings settings)
+            {
+                using Aes aesAlg = Aes.Create();
+                aesAlg.Key = aesKey;
+                aesAlg.GenerateIV();
+
+                byte[] aesEncrypted = EncryptAES128(JsonConvert.SerializeObject(this,settings), aesAlg.Key, aesAlg.IV);
+                byte[] encryptedBytes = new byte[aesAlg.IV.Length + aesEncrypted.Length];
+
+                Buffer.BlockCopy(aesAlg.IV, 0, encryptedBytes, 0, aesAlg.IV.Length);
+                Buffer.BlockCopy(aesEncrypted, 0, encryptedBytes, aesAlg.IV.Length, aesEncrypted.Length);
+
+              secure = Convert.ToBase64String(encryptedBytes);
             }
         }
 
