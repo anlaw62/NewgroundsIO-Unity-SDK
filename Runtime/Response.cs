@@ -1,37 +1,38 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using Unity.Properties;
 using UnityEngine;
 namespace Newgrounds
 {
-    [GeneratePropertyBag]
-    internal partial class Response<ResultDataType>
+
+    internal  class Response<ResultDataType>
     {
         public bool Success => success;
         public ErrorObject Error => error;
         public ResultObject Result => result;
-        [CreateProperty]
+        [JsonProperty]
         private bool success;
-        [CreateProperty]
+        [JsonProperty]
         private ErrorObject error;
-        [CreateProperty]
+        [JsonProperty]
         private ResultObject result;
        
-        [GeneratePropertyBag]
-        public partial class ErrorObject
+       
+        public  class ErrorObject
         {
             public int Code => code;
             public string Message => message;
-            [CreateProperty]
+            [JsonProperty]
             private int code;
-            [CreateProperty]
+            [JsonProperty]
             private string message;
         }
-        [GeneratePropertyBag]
-        public partial class ResultObject
+  
+        public  class ResultObject
         {
             public Dictionary<string, ResultDataType> Data => data;
-            [CreateProperty]
+            [JsonProperty]
             private Dictionary<string, ResultDataType> data;
         }
     }

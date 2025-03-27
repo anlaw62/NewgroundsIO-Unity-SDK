@@ -1,22 +1,21 @@
-using Unity.Properties;
-using UnityEngine;
+using Newtonsoft.Json;
 namespace Newgrounds
 {
-    [GeneratePropertyBag]
+
     public partial class Session
     {
         public bool Expired => expired;
-        public string Id => id;
+        public string Id { get => id; set => id = value; }
         public string PassportUrl => passport_url;
         public User User => user;
 
-        [CreateProperty]
+        [JsonProperty]
         private bool expired;
-        [CreateProperty]
+        [JsonProperty]
         private string id;
-        [CreateProperty]
+        [JsonProperty]
         private string passport_url;
-        [CreateProperty]
+        [JsonProperty]
         private User user;
 
     }

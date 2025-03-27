@@ -1,22 +1,23 @@
+using Newtonsoft.Json;
 using Unity.Properties;
 using UnityEngine;
 namespace Newgrounds
 {
-    [GeneratePropertyBag]
-    public partial class User
+   
+    public  class User
     {
         public int Id => id;
         public string Name => name;
         public bool Suppoerter => supporter;
         public string Url => url;
 
-        [CreateProperty]
+        [JsonProperty]
         private int id;
-        [CreateProperty]    
+        [JsonProperty]
         private string name;
-        [CreateProperty]
+        [JsonProperty]
         private bool supporter;
-        [CreateProperty]
+        [JsonProperty]
         private string url;
     }
 }

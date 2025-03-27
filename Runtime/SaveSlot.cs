@@ -1,15 +1,14 @@
-using Unity.Properties;
-using UnityEngine;
+using Newtonsoft.Json;
 namespace Newgrounds
 {
-    [GeneratePropertyBag]
-    public partial class SaveSlot
+
+    public class SaveSlot
     {
         public int Id => id;
-        public string Data => data;
-        [CreateProperty]
-        private string data;
-        [CreateProperty]
+        public string Url => url;
+        [JsonProperty]
         private int id;
+        [JsonProperty]
+        private string url;
     }
 }

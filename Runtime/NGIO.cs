@@ -1,10 +1,7 @@
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
-using Unity.Serialization.Json;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Newgrounds
@@ -12,10 +9,10 @@ namespace Newgrounds
     public class NGIO
     {
         public static NGIO Instance { get; private set; }
-        private Session session;
+        public Session session;
         public string AppId { get; }
         public byte[] AesKey { get; }
-        private UniTask sessionTask;
+        private readonly UniTaskCompletionSource sessionTaskSource;
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
@@ -29,11 +26,13 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Encoding.UTF8.GetBytes(aesKey);
-            sessionTask = StartSesion()
-             .ContinueWith(s =>
-             {
-                 session = s;
-             });
+            sessionTaskSource = new();
+            StartSesion()
+            .ContinueWith(s =>
+            {
+                session = s;
+                sessionTaskSource.TrySetResult();
+            }).Forget();
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
 
         }
@@ -84,14 +83,42 @@ namespace Newgrounds
 
         public async UniTask<Session> GetSession()
         {
-            await sessionTask;
+
+            await sessionTaskSource.Task;
+
             return session;
         }
         public async UniTask<string[]> LoadSlots()
         {
-            await sessionTask;
-            Response<List<SaveSlot>> resp = await SendRequest<List<SaveSlot>>(NewExecuteObject("CloudSave.loadSlots"));
-            return resp.Result.Data["slots"].ConvertAll(s => s.Data).ToArray();
+            await GetSession();
+            Response<SaveSlot[]> resp = await SendRequest<SaveSlot[]>(NewExecuteObject("CloudSave.loadSlots"));
+
+            SaveSlot[] slots = resp.Result.Data["slots"];
+            string[] res = new string[slots.Length];
+            for (int i = 0; i < res.Length; i++)
+            {
+                try
+                {
+                    UnityEngine.Debug.Log(slots[i].Url);
+                    res[i] = await LoadSlot(slots[i]);
+
+                }
+                catch { }
+            }
+            return res;
+        }
+        private async UniTask<string> LoadSlot(SaveSlot slot)
+        {
+            if (slot.Url == null)
+            {
+                return null;
+            }
+            using (UnityWebRequest webRequest = new(slot.Url, "GET") { downloadHandler = new DownloadHandlerBuffer() })
+            {
+
+                await webRequest.SendWebRequest().ToUniTask();
+                return webRequest.downloadHandler.text;
+            }
         }
         private async UniTask<Session> StartSesion()
         {
@@ -101,10 +128,10 @@ namespace Newgrounds
         }
 
 
-        private Request MakeRequest(Request.ExecuteObject executeObject, bool sesionID = false)
+        private Request MakeRequest(Request.ExecuteObject executeObject)
         {
 
-            return new() { AppId = AppId, ExecuteObj = executeObject };
+            return new() { AppId = AppId, ExecuteObj = executeObject, SessionId = session?.Id };
         }
         private Request.ExecuteObject NewExecuteObject(string component)
         {
@@ -112,9 +139,10 @@ namespace Newgrounds
         }
         private UnityWebRequest MakeWebRequest(Request request)
         {
+       
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonSerialization.ToJson(request))),
+                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request))),
 
             };
             webRequest.SetRequestHeader("Content-Type", "application/json");
@@ -159,7 +187,8 @@ namespace Newgrounds
             else
             {
                 string resJson = webRequest.downloadHandler.text;
-                Response<ResultDataType> response = JsonSerialization.FromJson<Response<ResultDataType>>(resJson);
+           
+                Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson);
                 if (!response.Success)
                 {
                     Debug.LogError(response.Error.Message);
