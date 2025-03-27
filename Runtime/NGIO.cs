@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Serialization.Json;
@@ -11,9 +12,10 @@ namespace Newgrounds
     {
         public static NGIO Instance { get; private set; }
         public Session Session { get; private set; }
-        public string AppId { get;  }
+        public string AppId { get; }
         public string AesKey { get; }
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
+
         public NGIO(string appId, string aesKey)
         {
             if (Instance != null)
@@ -30,9 +32,22 @@ namespace Newgrounds
                 Session = s;
             }).Forget();
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
-       
+
         }
         private UnityWebRequest pingWebRequest;
+        private DateTime lastTimePing;
+        private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(3);
+        public async UniTask Ping()
+        {
+            DateTime now = DateTime.Now;
+            if ((now - lastTimePing) > timePingDelay)
+            {
+                lastTimePing = now;
+                await pingWebRequest.SendWebRequest().ToUniTask();
+               
+            }
+        }
+
         private async UniTask<Session> StartSesion()
         {
 
@@ -43,13 +58,17 @@ namespace Newgrounds
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request.ExecuteObject executeObject)
         {
             Request request = MakeRequest(executeObject);
-            return await  SendRequest<ResultDataType>(request);
+            return await SendRequest<ResultDataType>(request);
         }
         private Request MakeRequest(Request.ExecuteObject executeObject)
         {
-            return new() { AppId = AppId, ExecuteObj = executeObject};
+            return new() { AppId = AppId, ExecuteObj = executeObject };
         }
-    private UnityWebRequest MakeWebRequest(Request request)
+        private Request.ExecuteObject NewExecuteObject(string component)
+        {
+            return new() { Component = component };
+        }
+        private UnityWebRequest MakeWebRequest(Request request)
         {
             return new(GATEWAY_URI, "POST")
             {
@@ -61,11 +80,7 @@ namespace Newgrounds
             return MakeWebRequest(MakeRequest(executeObject));
         }
 
-    
-        private Request.ExecuteObject NewExecuteObject(string component)
-        {
-            return new() { Component = component};
-        }
+
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request request)
         {
             UnityWebRequest webRequest = MakeWebRequest(request);
@@ -83,12 +98,12 @@ namespace Newgrounds
             else
             {
                 string resJson = webRequest.downloadHandler.text;
-                Response< ResultDataType> response = JsonSerialization.FromJson<Response<ResultDataType>>(resJson);
+                Response<ResultDataType> response = JsonSerialization.FromJson<Response<ResultDataType>>(resJson);
                 if (!response.Success)
                 {
                     Debug.LogError(response.Error.Message);
                 }
-            
+
                 return response;
             }
 
