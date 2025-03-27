@@ -62,6 +62,40 @@ namespace Newgrounds
 
             }
         }
+
+        public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
+        {
+            Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.getScores");
+            string periodStr;
+            switch (period)
+            {
+               
+                case Period.Month:
+                    periodStr = "N";
+                    break;
+                case Period.Day:
+                    periodStr = "D";
+                    break;
+                case Period.Week:
+                    periodStr = "S";
+                    break;
+                default:
+                    periodStr = "Y";
+                    break;
+            }
+            executeObject.Parameters = new()
+            {
+                {"id",leaderboardId },
+                {"period",periodStr },
+                {"skip",skip },
+                {"limit",limit},
+                {"social",social },
+                {"tag",tag },
+                {"userId",userId}
+            };
+            Response<Score[]> resp = await SendRequest<Score[]>(executeObject);
+            return resp.Result.Data["scores"];
+        }
         public async UniTask<Medal[]> GetMedals()
         {
             Response<Medal[]> resp = await SendRequest<Medal[]>(NewExecuteObject("Medal.getList"));
@@ -75,10 +109,11 @@ namespace Newgrounds
             {
                 {"id",id }
             };
-            executeObject.Encrypt(AesKey,serializerSettings);
-          await SendRequest(executeObject);
-         
+            executeObject.Encrypt(AesKey, serializerSettings);
+            await SendRequest(executeObject);
+
         }
+
 
         /// <summary>
         /// 
@@ -128,7 +163,7 @@ namespace Newgrounds
             await GetSession();
             slotId += 1;
             Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
-            executeObject.Parameters= new() { {"id",slotId} };
+            executeObject.Parameters = new() { { "id", slotId } };
             Response<SaveSlot> resp = await SendRequest<SaveSlot>(executeObject);
             return await LoadSlot(resp.Result.Data["slot"]);
         }
@@ -183,10 +218,10 @@ namespace Newgrounds
         }
         private UnityWebRequest MakeWebRequest(Request request)
         {
-       
+
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request,serializerSettings))),
+                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request, serializerSettings))),
 
             };
             webRequest.SetRequestHeader("Content-Type", "application/json");
@@ -231,7 +266,7 @@ namespace Newgrounds
             else
             {
                 string resJson = webRequest.downloadHandler.text;
-           
+
                 Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
                 if (!response.Success)
                 {
