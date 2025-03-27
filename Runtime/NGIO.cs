@@ -62,7 +62,17 @@ namespace Newgrounds
 
             }
         }
-
+        public async UniTask PostScore(int leaderboardId, int value,string tag = null)
+        {
+            Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.postScore");
+            executeObject.Parameters = new()
+            {
+                {"id",leaderboardId },
+                {"value",value },
+                {"tag",tag }
+            };
+           await SendRequest(executeObject);
+        }
         public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
         {
             Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.getScores");
