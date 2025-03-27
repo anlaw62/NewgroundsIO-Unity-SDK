@@ -62,7 +62,7 @@ namespace Newgrounds
 
             }
         }
-        public async UniTask PostScore(int leaderboardId, int value,string tag = null)
+        public async UniTask PostScore(int leaderboardId, int value, string tag = null)
         {
             Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.postScore");
             executeObject.Parameters = new()
@@ -71,7 +71,7 @@ namespace Newgrounds
                 {"value",value },
                 {"tag",tag }
             };
-           await SendRequest(executeObject);
+            await SendRequest(executeObject);
         }
         public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
         {
@@ -79,7 +79,7 @@ namespace Newgrounds
             string periodStr;
             switch (period)
             {
-               
+
                 case Period.Month:
                     periodStr = "N";
                     break;
@@ -103,7 +103,7 @@ namespace Newgrounds
                 {"tag",tag },
                 {"userId",userId}
             };
-            executeObject.Encrypt(AesKey,serializerSettings);
+            executeObject.Encrypt(AesKey, serializerSettings);
             Response<Score[]> resp = await SendRequest<Score[]>(executeObject);
             return resp.Result.Data["scores"];
         }
@@ -164,11 +164,12 @@ namespace Newgrounds
             await sessionTaskSource.Task;
 
             return session;
-        }        /// <summary>
-                 /// 
-                 /// </summary>
-                 /// <param name="slotId">0-indexed number of slot</param>
-                 /// <returns></returns>
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="slotId">0-indexed number of slot</param>
+        /// <returns></returns>
         public async UniTask<string> LoadSlot(int slotId)
         {
             await GetSession();
