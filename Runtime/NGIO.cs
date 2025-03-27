@@ -30,13 +30,13 @@ namespace Newgrounds
             AesKey = Encoding.UTF8.GetBytes(aesKey);
             serializerSettings = new()
             {
-                Error = (object o,Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
-                {
-                    args.ErrorContext.Handled = true;
-                    
-                }
+                Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
+                            {
+                                args.ErrorContext.Handled = true;
+
+                            },
+                NullValueHandling = NullValueHandling.Ignore
             };
-            serializerSettings.NullValueHandling = NullValueHandling.Ignore;
             sessionTaskSource = new();
             StartSesion()
             .ContinueWith(s =>
