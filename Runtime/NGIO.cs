@@ -61,6 +61,11 @@ namespace Newgrounds
 
             }
         }
+        public async UniTask<Medal[]> GetMedals()
+        {
+            Response<Medal[]> resp = await SendRequest<Medal[]>(NewExecuteObject("Medal.getList"));
+            return resp.Result.Data["medals"];
+        }
         public async UniTask UnlockMedal(int id)
         {
             Request.ExecuteObject executeObject = NewExecuteObject("Medal.unlock");
@@ -68,8 +73,10 @@ namespace Newgrounds
             {
                 {"id",id }
             };
+            executeObject.Encrypt(AesKey,serializerSettings);
             await SendRequest(executeObject);
         }
+
         /// <summary>
         /// 
         /// </summary>

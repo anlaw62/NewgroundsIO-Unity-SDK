@@ -64,7 +64,7 @@ namespace Newgrounds
             protected string component;
             [JsonProperty]
             private string secure;
-            public void Encrypt(byte[] key)
+            public void Encrypt(byte[] key,JsonSerializerSettings jsonSerializerSettings)
             {
                 using (Aes aes = Aes.Create())
                 {
