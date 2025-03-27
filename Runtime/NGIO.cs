@@ -27,12 +27,12 @@ namespace Newgrounds
             StartSesion()
             .ContinueWith(s =>
             {
-                UnityEngine.Debug.Log(s);
                 Session = s;
             }).Forget();
-
+            pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
        
         }
+        private UnityWebRequest pingWebRequest;
         private async UniTask<Session> StartSesion()
         {
 
@@ -42,14 +42,25 @@ namespace Newgrounds
 
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request.ExecuteObject executeObject)
         {
-            Request request = new()
-            {
-                AppId = AppId,
-                ExecuteObj = executeObject
-            };
+            Request request = MakeRequest(executeObject);
             return await  SendRequest<ResultDataType>(request);
         }
-    
+        private Request MakeRequest(Request.ExecuteObject executeObject)
+        {
+            return new() { AppId = AppId, ExecuteObj = executeObject};
+        }
+    private UnityWebRequest MakeWebRequest(Request request)
+        {
+            return new(GATEWAY_URI, "POST")
+            {
+                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonSerialization.ToJson(request))),
+            };
+        }
+        private UnityWebRequest MakeWebRequest(Request.ExecuteObject executeObject)
+        {
+            return MakeWebRequest(MakeRequest(executeObject));
+        }
+
     
         private Request.ExecuteObject NewExecuteObject(string component)
         {
@@ -57,12 +68,9 @@ namespace Newgrounds
         }
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request request)
         {
-            UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
-            {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonSerialization.ToJson(request))),
-                downloadHandler = new DownloadHandlerBuffer()
-            };
+            UnityWebRequest webRequest = MakeWebRequest(request);
 
+            webRequest.downloadHandler = new DownloadHandlerBuffer();
             webRequest.SetRequestHeader("Content-Type", "application/json");
 
 
