@@ -1,9 +1,10 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Scripting;
 
 namespace Newgrounds
 {
@@ -38,12 +39,11 @@ namespace Newgrounds
                 NullValueHandling = NullValueHandling.Ignore
             };
             sessionTaskSource = new();
-            StartSesion()
-            .ContinueWith(s =>
-            {
-                session = s;
-                sessionTaskSource.TrySetResult();
-            }).Forget();
+
+#if !UNITY_EDITOR
+            session = GetSessionFromUrl();
+            sessionTaskSource.TrySetResult();
+#endif
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
 
         }
@@ -52,6 +52,22 @@ namespace Newgrounds
         private DateTime lastTimeSaved;
         private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
         private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(3);
+        [Preserve]
+        private Session GetSessionFromUrl()
+        {
+            Uri uri = new(Application.absoluteURL);
+            Dictionary<string, string> uriParams = URIParamsUtility.GetParams(uri);
+
+            return new()
+            {
+                Id = uriParams["ngio_session_id"],
+                User = new()
+                {
+                    Id = int.Parse(uriParams["NewgroundsAPI_UserID"]),
+                    Name = uriParams["ng_username"],
+                }
+            };
+        }
         public async UniTask Ping()
         {
             DateTime now = DateTime.Now;
@@ -64,6 +80,7 @@ namespace Newgrounds
         }
         public async UniTask PostScore(int leaderboardId, int value, string tag = null)
         {
+            await GetSession();
             Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.postScore");
             executeObject.Parameters = new()
             {
@@ -71,7 +88,7 @@ namespace Newgrounds
                 {"value",value },
                 {"tag",tag }
             };
-            executeObject.Encrypt(AesKey,serializerSettings);
+            executeObject.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObject);
         }
         public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
@@ -155,7 +172,7 @@ namespace Newgrounds
                 {"data",saveData }
             };
             lastTimeSaved = DateTime.Now;
-       executeObj.Encrypt(AesKey, serializerSettings);
+            executeObj.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObj);
         }
 
