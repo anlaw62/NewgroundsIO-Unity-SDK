@@ -29,7 +29,7 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
-            CreatePinger();
+            
             serializerSettings = new()
             {
                 Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
@@ -53,6 +53,7 @@ namespace Newgrounds
 
         }
 #endif
+            CreatePinger();
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
         }
 
