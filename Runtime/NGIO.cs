@@ -29,13 +29,14 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
+            CreatePinger();
             serializerSettings = new()
             {
                 Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
-                            {
-                                args.ErrorContext.Handled = true;
+                {
+                    args.ErrorContext.Handled = true;
 
-                            },
+                },
                 NullValueHandling = NullValueHandling.Ignore
             };
             sessionTaskSource = new();
@@ -47,6 +48,14 @@ namespace Newgrounds
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
 
         }
+
+        private static void CreatePinger()
+        {
+            GameObject pingerGo = new("NG Pinger");
+            UnityEngine.Object.DontDestroyOnLoad(pingerGo);
+            pingerGo.AddComponent<NGPinger>();
+        }
+
         private UnityWebRequest pingWebRequest;
         private DateTime lastTimePing;
         private DateTime lastTimeSaved;
