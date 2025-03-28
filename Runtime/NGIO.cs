@@ -57,7 +57,13 @@ namespace Newgrounds
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
             CreatePinger();
         }
-
+        public bool IsValidSession
+        {
+            get
+            {
+                return session != null;
+            }
+        }
         private static void CreatePinger()
         {
             GameObject pingerGo = new("NG Pinger");
@@ -87,10 +93,14 @@ namespace Newgrounds
                     }
                 }; 
             }
-            return new();
+            return null;
         }
         public async UniTask Ping()
         {
+            if (!IsValidSession)
+            {
+                return;
+            }
             DateTime now = DateTime.Now;
             if ((now - lastTimePing) > timePingDelay)
             {
@@ -102,6 +112,11 @@ namespace Newgrounds
         public async UniTask PostScore(int leaderboardId, int value, string tag = null)
         {
             await GetSession();
+            if (!IsValidSession)
+            {
+                Debug.LogError("Cant post score without session");
+                return;
+            }
             Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.postScore");
             executeObject.Parameters = new()
             {
@@ -154,6 +169,11 @@ namespace Newgrounds
         public async UniTask UnlockMedal(int id)
         {
             await GetSession();
+            if (!IsValidSession)
+            {
+                Debug.LogError("Cant unlock medal without session");
+                return;
+            }
             Request.ExecuteObject executeObject = NewExecuteObject("Medal.unlock");
             executeObject.Parameters = new()
             {
@@ -173,12 +193,13 @@ namespace Newgrounds
         /// <returns></returns>
         public async UniTask SaveSlot(int slotId, string saveData)
         {
-            slotId += 1;
-            if (session == null)
+            if (!IsValidSession)
             {
-                Debug.LogError("SaveSlot Error : Session is Invalid");
+                Debug.LogError("Cant saveslot without session");
                 return;
             }
+            slotId += 1;
+           
 
             DateTime now = DateTime.Now;
             if ((now - lastTimeSaved) < saveDelay)
@@ -212,6 +233,11 @@ namespace Newgrounds
         public async UniTask<string> LoadSlot(int slotId)
         {
             await GetSession();
+            if (!IsValidSession)
+            {
+                Debug.LogError("Cant LoadSlot without session");
+                return null;
+            }
             slotId += 1;
             Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
             executeObject.Parameters = new() { { "id", slotId } };
@@ -221,6 +247,11 @@ namespace Newgrounds
         public async UniTask<string[]> LoadSlots()
         {
             await GetSession();
+            if (!IsValidSession)
+            {
+                Debug.LogError("Cant LoadSlots without session");
+                return null;
+            }
             Response<SaveSlot[]> resp = await SendRequest<SaveSlot[]>(NewExecuteObject("CloudSave.loadSlots"));
 
             SaveSlot[] slots = resp.Result.Data["slots"];
