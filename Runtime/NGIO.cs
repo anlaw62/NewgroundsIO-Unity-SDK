@@ -29,7 +29,7 @@ namespace Newgrounds
             Instance = this;
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
-            
+
             serializerSettings = new()
             {
                 Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
@@ -91,7 +91,7 @@ namespace Newgrounds
                         Id = int.Parse(uriParams["NewgroundsAPI_UserID"]),
                         Name = uriParams["ng_username"],
                     }
-                }; 
+                };
             }
             return null;
         }
@@ -199,7 +199,7 @@ namespace Newgrounds
                 return;
             }
             slotId += 1;
-           
+
 
             DateTime now = DateTime.Now;
             if ((now - lastTimeSaved) < saveDelay)
@@ -336,28 +336,31 @@ namespace Newgrounds
 
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request request)
         {
-            UnityWebRequest webRequest = MakeWebRequest(request);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-
-            await webRequest.SendWebRequest().ToUniTask();
-            if (webRequest.result != UnityWebRequest.Result.Success)
+            using (UnityWebRequest webRequest = MakeWebRequest(request))
             {
-                Debug.LogError("Send Request Error");
-                return default;
-            }
-            else
-            {
-                string resJson = webRequest.downloadHandler.text;
 
-                Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
-                if (!response.Success)
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+
+                await webRequest.SendWebRequest().ToUniTask();
+                if (webRequest.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError(response.Error.Message);
+                    Debug.LogError("Send Request Error");
+                    return default;
+                }
+                else
+                {
+                    string resJson = webRequest.downloadHandler.text;
+
+                    Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
+                    if (!response.Success)
+                    {
+                        Debug.LogError(response.Error.Message);
+                    }
+
+                    return response;
                 }
 
-                return response;
             }
-
         }
     }
 }
