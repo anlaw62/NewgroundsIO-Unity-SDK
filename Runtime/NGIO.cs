@@ -49,11 +49,11 @@ namespace Newgrounds
             {
 
             session = GetSessionFromUrl();
-            sessionTaskSource.TrySetResult();
+         
 
         }
 #endif
-    
+            sessionTaskSource.TrySetResult();
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
             CreatePinger();
         }
