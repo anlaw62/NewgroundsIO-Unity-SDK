@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Scripting;
@@ -75,7 +76,7 @@ namespace Newgrounds
         private DateTime lastTimePing;
         private DateTime lastTimeSaved;
         private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
-        private readonly TimeSpan timePingDelay = TimeSpan.FromSeconds(6);
+        private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(3);
         [Preserve]
         private Session GetSessionFromUrl()
         {
@@ -107,9 +108,7 @@ namespace Newgrounds
                 lastTimePing = now;
                 using (UnityWebRequest webRequest = MakeWebRequest(pingRawRequest))
                 {
-                    webRequest.downloadHandler = new DownloadHandlerBuffer();
                     await webRequest.SendWebRequest().ToUniTask();
-                    Debug.LogError(webRequest.downloadHandler.text);
                 }
 
             }
