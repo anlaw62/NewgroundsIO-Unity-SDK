@@ -19,7 +19,7 @@ namespace Newgrounds
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
-        public NGIO(string appId, string aesKey)
+        public NGIO(string appId, string aesKey, string sessionId = null)
         {
             if (Instance != null)
             {
@@ -40,13 +40,20 @@ namespace Newgrounds
                 NullValueHandling = NullValueHandling.Ignore
             };
             sessionTaskSource = new();
-
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                session = new() { Id = sessionId };
+            }
 #if !UNITY_EDITOR
+            else
+            {
+
             session = GetSessionFromUrl();
             sessionTaskSource.TrySetResult();
+
+        }
 #endif
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
-
         }
 
         private static void CreatePinger()
