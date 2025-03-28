@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Scripting;
@@ -16,6 +17,7 @@ namespace Newgrounds
         public byte[] AesKey { get; }
         private readonly UniTaskCompletionSource sessionTaskSource;
         private JsonSerializerSettings serializerSettings;
+        private byte[] pingRawRequest;
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
@@ -53,8 +55,9 @@ namespace Newgrounds
 
         }
 #endif
+
             sessionTaskSource.TrySetResult();
-            pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
+            pingRawRequest = MakeWebRequest(NewExecuteObject("Gateway.ping")).uploadHandler.data;
             CreatePinger();
         }
         public bool IsValidSession
@@ -70,8 +73,6 @@ namespace Newgrounds
             UnityEngine.Object.DontDestroyOnLoad(pingerGo);
             pingerGo.AddComponent<NGPinger>();
         }
-
-        private UnityWebRequest pingWebRequest;
         private DateTime lastTimePing;
         private DateTime lastTimeSaved;
         private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
@@ -105,7 +106,10 @@ namespace Newgrounds
             if ((now - lastTimePing) > timePingDelay)
             {
                 lastTimePing = now;
-                await pingWebRequest.SendWebRequest().ToUniTask();
+                using (UnityWebRequest webRequest = MakeWebRequest(pingRawRequest))
+                {
+                    await webRequest.SendWebRequest().ToUniTask();
+                }
 
             }
         }
@@ -298,16 +302,20 @@ namespace Newgrounds
         {
             return new() { Component = component };
         }
-        private UnityWebRequest MakeWebRequest(Request request)
+        private UnityWebRequest MakeWebRequest(byte[] bytes)
         {
-
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request, serializerSettings))),
+                uploadHandler = new UploadHandlerRaw(bytes)
 
             };
             webRequest.SetRequestHeader("Content-Type", "application/json");
             return webRequest;
+        }
+        private UnityWebRequest MakeWebRequest(Request request)
+        {
+
+            return MakeWebRequest(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request, serializerSettings)));
         }
         private UnityWebRequest MakeWebRequest(Request.ExecuteObject executeObject)
         {
