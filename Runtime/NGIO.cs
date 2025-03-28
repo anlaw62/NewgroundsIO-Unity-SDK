@@ -53,8 +53,9 @@ namespace Newgrounds
 
         }
 #endif
-            CreatePinger();
+    
             pingWebRequest = MakeWebRequest(NewExecuteObject("Gateway.ping"));
+            CreatePinger();
         }
 
         private static void CreatePinger()
