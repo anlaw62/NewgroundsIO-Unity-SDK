@@ -2,12 +2,28 @@ using Newtonsoft.Json;
 namespace Newgrounds
 {
 
-    public partial class Session
+    public sealed class Session
     {
-        public bool Expired => expired;
-        public string Id { get => id; set => id = value; }
-        public string PassportUrl => passport_url;
-        public User User => user;
+        public bool Expired 
+        {
+            get => expired;
+            internal set => expired = value;
+        }
+        public string Id 
+        {
+            get => id;
+            internal set => id = value;
+        }
+        public string PassportUrl 
+        {
+            get => passport_url;
+            internal set => passport_url = value;
+        }
+        public User User 
+        {
+            get => user;
+            internal set => user = value;
+        }
 
         [JsonProperty]
         private bool expired;

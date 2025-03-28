@@ -3,13 +3,30 @@ using Unity.Properties;
 using UnityEngine;
 namespace Newgrounds
 {
-   
-    public  class User
+
+    public sealed class User
     {
-        public int Id => id;
-        public string Name => name;
-        public bool Suppoerter => supporter;
-        public string Url => url;
+
+        public int Id
+        {
+            get => id;
+            internal set => id = value;
+        }
+        public string Name
+        {
+            get => name;
+            internal set => name = value;
+        }
+        public bool Supporter
+        {
+            get => supporter;
+            internal set=> supporter = value;
+        }
+        public string Url
+        {
+            get => url;
+            internal set => url = value;
+        }
 
         [JsonProperty]
         private int id;
