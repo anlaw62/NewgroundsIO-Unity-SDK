@@ -57,16 +57,19 @@ namespace Newgrounds
         {
             Uri uri = new(Application.absoluteURL);
             Dictionary<string, string> uriParams = URIParamsUtility.GetParams(uri);
-
-            return new()
+            if (uriParams.ContainsKey("ngio_session_id"))
             {
-                Id = uriParams["ngio_session_id"],
-                User = new()
+                return new()
                 {
-                    Id = int.Parse(uriParams["NewgroundsAPI_UserID"]),
-                    Name = uriParams["ng_username"],
-                }
-            };
+                    Id = uriParams["ngio_session_id"],
+                    User = new()
+                    {
+                        Id = int.Parse(uriParams["NewgroundsAPI_UserID"]),
+                        Name = uriParams["ng_username"],
+                    }
+                }; 
+            }
+            return new();
         }
         public async UniTask Ping()
         {
