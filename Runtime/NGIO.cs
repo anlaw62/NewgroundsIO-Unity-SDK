@@ -187,6 +187,7 @@ namespace Newgrounds
 
         }
 
+        private string saveDataToSet;
 
         /// <summary>
         /// 
@@ -203,9 +204,9 @@ namespace Newgrounds
             }
             slotId += 1;
 
-
+            saveDataToSet = saveData;
             DateTime now = DateTime.Now;
-            if ((now - lastTimeSaved) < saveDelay)
+            while((now - lastTimeSaved) < saveDelay)
             {
                 await UniTask.Yield();
             }
@@ -214,7 +215,7 @@ namespace Newgrounds
             executeObj.Parameters = new()
             {
                 {"id",slotId },
-                {"data",saveData }
+                {"data",saveDataToSet }
             };
             lastTimeSaved = DateTime.Now;
             executeObj.Encrypt(AesKey, serializerSettings);
