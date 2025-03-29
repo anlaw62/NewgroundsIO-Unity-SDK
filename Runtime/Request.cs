@@ -99,6 +99,9 @@ namespace Newgrounds
                 Buffer.BlockCopy(aesEncrypted, 0, encryptedBytes, aesAlg.IV.Length, aesEncrypted.Length);
 
               secure = Convert.ToBase64String(encryptedBytes);
+                echo = default;
+                component = default;
+                parameters = default;
             }
         }
 
