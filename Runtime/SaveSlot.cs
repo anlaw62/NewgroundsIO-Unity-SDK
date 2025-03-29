@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 namespace Newgrounds
 {
 
-    public class SaveSlot
+    internal class SaveSlot
     {
         public int Id => id;
         public string Url => url;
