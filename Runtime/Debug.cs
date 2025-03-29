@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace Newgrounds
 {
-    public static class Debug
+    internal static class Debug
     {
         private const string Prefix = "[NGIO]";
         public static void LogError(string message)
