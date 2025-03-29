@@ -39,7 +39,7 @@ namespace Newgrounds
         [JsonProperty]
         private ExecuteObject execute;
 
-        internal class ExecuteObject
+        public class ExecuteObject
         {
 
             public string Echo
