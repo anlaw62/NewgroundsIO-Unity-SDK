@@ -20,13 +20,8 @@ namespace Newgrounds
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
-        public NGIO(string appId, string aesKey, string sessionId = null)
+        private NGIO(string appId, string aesKey, string sessionId = null)
         {
-            if (Instance != null)
-            {
-                Debug.LogError("Attempt of creating second ngio instance");
-                return;
-            }
             Instance = this;
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
@@ -58,6 +53,18 @@ namespace Newgrounds
             sessionTaskSource.TrySetResult();
             pingRawRequest = MakeWebRequest(NewExecuteObject("Gateway.ping")).uploadHandler.data;
             CreatePinger();
+        }
+        public static NGIO Init(string appId, string aesKey, string sessionId = null)
+        {
+            if (Instance == null)
+            {
+                return new(appId, aesKey, sessionId);   
+            }
+            else
+            {
+                Debug.LogError("Attempt of creating second ngio instance");
+            }
+            return null;
         }
         public bool IsValidSession
         {
