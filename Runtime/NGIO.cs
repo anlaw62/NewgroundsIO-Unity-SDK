@@ -222,7 +222,10 @@ namespace Newgrounds
             executeObj.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObj);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Session of authorised user. Returns null if user is not authorised</returns>
         public async UniTask<Session> GetSession()
         {
 
