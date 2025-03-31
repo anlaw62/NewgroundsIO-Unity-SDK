@@ -166,7 +166,7 @@ namespace Newgrounds
         }
         public async UniTask<Medal[]> GetMedals()
         {
-            Response<Medal[]> resp = await SendRequest<Medal[]>(NewExecuteObject("Medal.getList"));
+            Response<Medal[]> resp = await SendRequest<Medal[]>("Medal.getList");
             return resp.Result.Data["medals"];
         }
         public async UniTask UnlockMedal(int id)
@@ -199,6 +199,7 @@ namespace Newgrounds
         {
             if (!IsValidSession)
             {
+            
                 Debug.LogError("Cant saveslot without session");
                 return;
             }
@@ -256,7 +257,7 @@ namespace Newgrounds
                 Debug.LogError("Cant LoadSlots without session");
                 return null;
             }
-            Response<SaveSlot[]> resp = await SendRequest<SaveSlot[]>(NewExecuteObject("CloudSave.loadSlots"));
+            Response<SaveSlot[]> resp = await SendRequest<SaveSlot[]>("CloudSave.loadSlots");
 
             SaveSlot[] slots = resp.Result.Data["slots"];
             string[] res = new string[slots.Length];
@@ -288,7 +289,7 @@ namespace Newgrounds
         private async UniTask<Session> StartSesion()
         {
 
-            Response<Session> res = await SendRequest<Session>(NewExecuteObject("App.startSession"));
+            Response<Session> res = await SendRequest<Session>("App.startSession");
             return res.Result.Data["session"];
         }
 
@@ -321,7 +322,10 @@ namespace Newgrounds
         {
             return MakeWebRequest(MakeRequest(executeObject));
         }
-
+        private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(string component)
+        {
+          return  await SendRequest<ResultDataType>(NewExecuteObject(component));
+        }
 
         private async UniTask SendRequest(Request request)
         {
