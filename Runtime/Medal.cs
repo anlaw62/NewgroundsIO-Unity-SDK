@@ -5,13 +5,15 @@ namespace Newgrounds
     public class Medal
     {
         public string Description => description;
-     
-        public int Difficulty=>difficulty;
+        /// <summary>
+        /// Difficulty from 0 to 5(including)
+        /// </summary>
+        public int Difficulty => difficulty - 1;
         public string IconUrl => icon;
         public int Id => id;
         public string Name => name;
-        public bool Secret=>secret;
-        public bool Unlocked=>unlocked;
+        public bool Secret => secret;
+        public bool Unlocked => unlocked;
         public int Value => value;
 
         [JsonProperty]
