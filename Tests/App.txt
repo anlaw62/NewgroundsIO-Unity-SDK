@@ -1,0 +1,5 @@
+{
+  "AppId": "59992:m4UVPNLx",
+  "AesKey": "v4ArMWUN0ZxH/ZqefSkgpA==",
+  "SessionId": "44079716.86ab8b7c42ce76fbf05ae113d09dbb4ab6adcb36cfc0ac"
+}
