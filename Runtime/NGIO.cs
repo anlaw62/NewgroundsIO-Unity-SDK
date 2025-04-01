@@ -223,7 +223,9 @@ namespace Newgrounds
             DateTime now = DateTime.Now;
             while ((now - lastTimeSaved) < saveDelay)
             {
+               
                 await UniTask.Yield();
+                now = DateTime.Now;
             }
 
             Request.ExecuteObject executeObj = NewExecuteObject("CloudSave.setData");
@@ -232,7 +234,7 @@ namespace Newgrounds
                 {"id",slotId },
                 {"data",saveDataToSet }
             };
-            lastTimeSaved = DateTime.Now;
+            lastTimeSaved = now;
             executeObj.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObj);
         }
