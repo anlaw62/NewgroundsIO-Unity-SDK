@@ -8,7 +8,7 @@ using UnityEngine.Scripting;
 
 namespace Newgrounds
 {
-    public class NGIO
+    public class NGIO:IDisposable
     {
         public static NGIO Instance { get; private set; }
         private Session session;
@@ -19,7 +19,7 @@ namespace Newgrounds
         private byte[] pingRawRequest;
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
-
+  
         private NGIO(string appId, string aesKey, string sessionId = null)
         {
             Instance = this;
@@ -54,11 +54,15 @@ namespace Newgrounds
             pingRawRequest = MakeWebRequest(NewExecuteObject("Gateway.ping")).uploadHandler.data;
             CreatePinger();
         }
+        public void Dispose()
+        {
+            Instance = null;
+        }
         public static NGIO Init(string appId, string aesKey, string sessionId = null)
         {
             if (Instance == null)
             {
-                return new(appId, aesKey, sessionId);   
+                return new(appId, aesKey, sessionId);
             }
             else
             {
@@ -75,9 +79,12 @@ namespace Newgrounds
         }
         private static void CreatePinger()
         {
-            GameObject pingerGo = new("NG Pinger");
-            UnityEngine.Object.DontDestroyOnLoad(pingerGo);
-            pingerGo.AddComponent<NGPinger>();
+            if (Application.isPlaying)
+            {
+                GameObject pingerGo = new("NG Pinger");
+                UnityEngine.Object.DontDestroyOnLoad(pingerGo);
+                pingerGo.AddComponent<NGPinger>();
+            }
         }
         private DateTime lastTimePing;
         private DateTime lastTimeSaved;
@@ -206,7 +213,7 @@ namespace Newgrounds
         {
             if (!IsValidSession)
             {
-            
+
                 Debug.LogError("Cant saveslot without session");
                 return;
             }
@@ -214,7 +221,7 @@ namespace Newgrounds
 
             saveDataToSet = saveData;
             DateTime now = DateTime.Now;
-            while((now - lastTimeSaved) < saveDelay)
+            while ((now - lastTimeSaved) < saveDelay)
             {
                 await UniTask.Yield();
             }
@@ -334,7 +341,7 @@ namespace Newgrounds
         }
         private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(string component)
         {
-          return  await SendRequest<ResultDataType>(NewExecuteObject(component));
+            return await SendRequest<ResultDataType>(NewExecuteObject(component));
         }
 
         private async UniTask SendRequest(Request request)
