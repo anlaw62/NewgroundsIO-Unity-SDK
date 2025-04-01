@@ -61,19 +61,21 @@ namespace Newgrounds.Tests
             Assert.False(medals.First(m => m.Id == 83699).Unlocked, "medal 2 is  unlocked, this cant be");
 
         }
-        [Test, TestCase("jsjs", "38=")]
+        [Test,TestCase("BVCs", "{vb==ssjw7tyw7t13sahjdgSAHJfdgdsKFGKDSU33333fsasdasda9dggggg}")]
         public async Task TestSaveLoad(string save1, string save2)
         {
             string[] dataToSave = new string[2] { save1, save2 };
             int saveCount = dataToSave.Length;
+
             for (int i = 0; i < saveCount; i++)
             {
+                ngio.SaveSlot(i, "nnnnnn").Forget();
                 await ngio.SaveSlot(i, dataToSave[i]);
             }
             string[] saved = await ngio.LoadSlots();
             for (int i = 0; i < saveCount; i++)
             {
-                Assert.True(saved[i] == dataToSave[i], $"save {i} is incorrect");
+                Assert.True(saved[i] == dataToSave[i], $"save {i} is incorrect,saved:{saved[i]}");
             }
 
         }
