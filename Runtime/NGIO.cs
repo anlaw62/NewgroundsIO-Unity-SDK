@@ -89,7 +89,7 @@ namespace Newgrounds
         private DateTime lastTimePing;
         private DateTime lastTimeSaved;
         private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
-        private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(3);
+        private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(5);
         [Preserve]
         private Session GetSessionFromUrl()
         {
