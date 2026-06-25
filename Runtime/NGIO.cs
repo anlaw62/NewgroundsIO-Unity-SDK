@@ -173,12 +173,12 @@ namespace Newgrounds
             };
             executeObject.Encrypt(AesKey, serializerSettings);
             Response<Score[]> resp = await SendRequest<Score[]>(executeObject);
-            return resp.Result.Data["scores"];
+            return resp.Result["scores"];
         }
         public async UniTask<Medal[]> GetMedals()
         {
             Response<Medal[]> resp = await SendRequest<Medal[]>("Medal.getList");
-            return resp.Result.Data["medals"];
+            return resp.Result["medals"];
         }
         public async UniTask UnlockMedal(int id)
         {
@@ -263,12 +263,8 @@ namespace Newgrounds
             Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
             executeObject.Parameters = new() { { "id", slotId } };
             Response<SaveSlot> resp = await SendRequest<SaveSlot>(executeObject);
-            if(resp.Result==null || resp.Result.Data == null)
-            {
-                Debug.LogError("no saves");
-                return null;
-            }
-            return await LoadSlot(resp.Result.Data["slot"]);
+  
+            return await LoadSlot(resp.Result["slot"]);
         }
         public async UniTask<string[]> LoadSlots()
         {
@@ -280,7 +276,7 @@ namespace Newgrounds
             }
             Response<SaveSlot[]> resp = await SendRequest<SaveSlot[]>("CloudSave.loadSlots");
 
-            SaveSlot[] slots = resp.Result.Data["slots"];
+            SaveSlot[] slots = resp.Result["slots"];
             string[] res = new string[slots.Length];
             for (int i = 0; i < res.Length; i++)
             {
@@ -311,7 +307,7 @@ namespace Newgrounds
         {
 
             Response<Session> res = await SendRequest<Session>("App.startSession");
-            return res.Result.Data["session"];
+            return res.Result["session"];
         }
 
 

@@ -31,9 +31,14 @@ namespace Newgrounds
   
         public  class ResultObject
         {
-            public Dictionary<string, ResultDataType> Data => data;
+            public ResultDataType this[string key]{
+                get
+                {
+                    return JsonConvert.DeserializeObject<ResultDataType>(JsonConvert.SerializeObject(data[key]));
+                }
+            } 
             [JsonProperty]
-            private Dictionary<string, ResultDataType> data;
+            private Dictionary<string, object> data;
         }
     }
 }
