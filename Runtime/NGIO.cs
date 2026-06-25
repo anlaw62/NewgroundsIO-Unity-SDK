@@ -31,7 +31,7 @@ namespace Newgrounds
                 Error = (object o, Newtonsoft.Json.Serialization.ErrorEventArgs args) =>
                 {
                     args.ErrorContext.Handled = true;
-
+                    UnityEngine.Debug.LogException(args.ErrorContext.Error);
                 },
                 NullValueHandling = NullValueHandling.Ignore
             };
@@ -388,6 +388,7 @@ namespace Newgrounds
                     if (response == null)
                     {
                         Debug.LogError("response is null");
+               
                     }
                     if (!response.Success)
                     {
