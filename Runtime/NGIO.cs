@@ -383,9 +383,20 @@ namespace Newgrounds
                     string resJson = webRequest.downloadHandler.text;
 
                     Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
+                    if (response == null)
+                    {
+                        Debug.LogError("response is null");
+                    }
                     if (!response.Success)
                     {
-                        Debug.LogError(response.Error.Message);
+                        if (response.Error != null)
+                        {
+                            Debug.LogError(response.Error.Message);
+                        }
+                        else
+                        {
+                            Debug.LogError("Unknown error");
+                        }
                     }
 
                     return response;
