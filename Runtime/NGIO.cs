@@ -119,10 +119,7 @@ namespace Newgrounds
             if ((now - lastTimePing) > timePingDelay)
             {
                 lastTimePing = now;
-                using (UnityWebRequest webRequest = MakeWebRequest(pingRawRequest))
-                {
-                    await webRequest.SendWebRequest().ToUniTask();
-                }
+                SendRequest<string>("Gateway.ping").Forget();
 
             }
         }
@@ -386,7 +383,7 @@ namespace Newgrounds
                 else
                 {
                     string resJson = webRequest.downloadHandler.text;
-
+                    UnityEngine.Debug.Log(resJson);
                     Response<ResultDataType> response = JsonConvert.DeserializeObject<Response<ResultDataType>>(resJson, serializerSettings);
                     if (response == null)
                     {
