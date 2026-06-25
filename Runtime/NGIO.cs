@@ -266,6 +266,11 @@ namespace Newgrounds
             Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
             executeObject.Parameters = new() { { "id", slotId } };
             Response<SaveSlot> resp = await SendRequest<SaveSlot>(executeObject);
+            if(resp.Result==null || resp.Result.Data == null)
+            {
+                Debug.LogError("no saves");
+                return null;
+            }
             return await LoadSlot(resp.Result.Data["slot"]);
         }
         public async UniTask<string[]> LoadSlots()
