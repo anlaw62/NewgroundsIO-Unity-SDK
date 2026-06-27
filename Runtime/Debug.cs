@@ -8,5 +8,9 @@ namespace Newgrounds
         {
           UnityEngine.Debug.LogError($"{Prefix} {message}");
         }
+        public static void Log(string message)
+        {
+            UnityEngine.Debug.Log($"{Prefix} {message}");
+        }
     }
 }

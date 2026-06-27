@@ -195,7 +195,7 @@ namespace Newgrounds
             };
             executeObject.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObject);
-
+            Debug.Log($"unlockingAchievment {id}");
         }
 
         private string saveDataToSet;

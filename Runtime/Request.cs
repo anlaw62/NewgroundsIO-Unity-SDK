@@ -5,11 +5,18 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEditor.PackageManager.Requests;
+using UnityEngine.Scripting;
 namespace Newgrounds
 {
 
     internal class Request
     {
+        [Preserve, JsonConstructor]
+        public Request()
+        {
+
+        }
         public string AppId
         {
             get => app_id;
@@ -41,6 +48,11 @@ namespace Newgrounds
 
         public class ExecuteObject
         {
+            [Preserve, JsonConstructor]
+            public ExecuteObject()
+            {
+
+            }
 
             public string Echo
             {

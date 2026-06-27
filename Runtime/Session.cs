@@ -1,9 +1,15 @@
 using Newtonsoft.Json;
+using UnityEngine.Scripting;
 namespace Newgrounds
 {
 
     public sealed class Session
     {
+        [Preserve, JsonConstructor]
+      internal Session()
+        {
+
+        }
         public bool Expired 
         {
             get => expired;

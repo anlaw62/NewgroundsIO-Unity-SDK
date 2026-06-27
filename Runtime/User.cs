@@ -1,12 +1,17 @@
 using Newtonsoft.Json;
 using Unity.Properties;
 using UnityEngine;
+using UnityEngine.Scripting;
 namespace Newgrounds
 {
 
     public sealed class User
     {
+        [Preserve, JsonConstructor]
+        internal User()
+        {
 
+        }
         public int Id
         {
             get => id;

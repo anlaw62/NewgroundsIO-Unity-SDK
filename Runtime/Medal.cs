@@ -1,9 +1,15 @@
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Scripting;
 namespace Newgrounds
 {
     public class Medal
     {
+        [Preserve, JsonConstructor]
+        internal Medal()
+        {
+
+        }
         public string Description => description;
         /// <summary>
         /// Difficulty from 0 to 5(including)

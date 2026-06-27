@@ -1,10 +1,15 @@
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Scripting;
 namespace Newgrounds
 {
     public class Score
     {
+        [Preserve, JsonConstructor]
+        internal Score()
+        {
 
+        }
         public string FormattedValue => formatted_value;
         public string Tag => tag;
         public User User => user;
