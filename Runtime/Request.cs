@@ -2,10 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine.Scripting;
 namespace Newgrounds
 {
@@ -77,7 +74,7 @@ namespace Newgrounds
             protected string component;
             [JsonProperty]
             private string secure;
-          private byte[] EncryptAES128(string plainText, byte[] key, byte[] iv)
+            private byte[] EncryptAES128(string plainText, byte[] key, byte[] iv)
             {
 
 
@@ -98,19 +95,19 @@ namespace Newgrounds
                 return msEncrypt.ToArray();
             }
 
-            public void Encrypt(byte[] aesKey,JsonSerializerSettings settings)
+            public void Encrypt(byte[] aesKey, JsonSerializerSettings settings)
             {
                 using Aes aesAlg = Aes.Create();
                 aesAlg.Key = aesKey;
                 aesAlg.GenerateIV();
 
-                byte[] aesEncrypted = EncryptAES128(JsonConvert.SerializeObject(this,settings), aesAlg.Key, aesAlg.IV);
+                byte[] aesEncrypted = EncryptAES128(JsonConvert.SerializeObject(this, settings), aesAlg.Key, aesAlg.IV);
                 byte[] encryptedBytes = new byte[aesAlg.IV.Length + aesEncrypted.Length];
 
                 Buffer.BlockCopy(aesAlg.IV, 0, encryptedBytes, 0, aesAlg.IV.Length);
                 Buffer.BlockCopy(aesEncrypted, 0, encryptedBytes, aesAlg.IV.Length, aesEncrypted.Length);
 
-              secure = Convert.ToBase64String(encryptedBytes);
+                secure = Convert.ToBase64String(encryptedBytes);
                 echo = default;
                 component = default;
                 parameters = default;

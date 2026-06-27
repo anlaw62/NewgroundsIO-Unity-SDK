@@ -1,6 +1,4 @@
 using Newtonsoft.Json;
-using Unity.Properties;
-using UnityEngine;
 using UnityEngine.Scripting;
 namespace Newgrounds
 {
@@ -25,7 +23,7 @@ namespace Newgrounds
         public bool Supporter
         {
             get => supporter;
-            internal set=> supporter = value;
+            internal set => supporter = value;
         }
         public string Url
         {

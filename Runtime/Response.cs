@@ -1,16 +1,13 @@
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using Unity.Properties;
-using UnityEngine;
 using UnityEngine.Scripting;
 namespace Newgrounds
 {
 
-    internal  class Response<ResultDataType>
+    internal class Response<ResultDataType>
     {
-        [Preserve,JsonConstructor]
-      public Response()
+        [Preserve, JsonConstructor]
+        public Response()
         {
 
         }
@@ -24,8 +21,8 @@ namespace Newgrounds
         [JsonProperty]
         private ResultObject result;
 
-    
-        public  class ErrorObject
+
+        public class ErrorObject
         {
             [Preserve, JsonConstructor]
             public ErrorObject()
@@ -39,20 +36,21 @@ namespace Newgrounds
             [JsonProperty]
             private string message;
         }
-  
-        public  class ResultObject
+
+        public class ResultObject
         {
             [Preserve, JsonConstructor]
             public ResultObject()
             {
 
             }
-            public ResultDataType this[string key]{
+            public ResultDataType this[string key]
+            {
                 get
                 {
                     return JsonConvert.DeserializeObject<ResultDataType>(JsonConvert.SerializeObject(data[key]));
                 }
-            } 
+            }
             [JsonProperty]
             private Dictionary<string, object> data;
         }

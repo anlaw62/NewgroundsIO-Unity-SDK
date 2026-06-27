@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Newgrounds;
 using UnityEngine;
 namespace Newgrounds
 {
@@ -11,7 +10,7 @@ namespace Newgrounds
         }
         private void Update()
         {
-         if(Application.isFocused)   NGIO.Instance.Ping().Forget();
+            if (Application.isFocused) NGIO.Instance.Ping().Forget();
         }
     }
 }

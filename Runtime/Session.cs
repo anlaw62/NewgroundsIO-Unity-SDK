@@ -6,26 +6,26 @@ namespace Newgrounds
     public sealed class Session
     {
         [Preserve, JsonConstructor]
-      internal Session()
+        internal Session()
         {
 
         }
-        public bool Expired 
+        public bool Expired
         {
             get => expired;
             internal set => expired = value;
         }
-        public string Id 
+        public string Id
         {
             get => id;
             internal set => id = value;
         }
-        public string PassportUrl 
+        public string PassportUrl
         {
             get => passport_url;
             internal set => passport_url = value;
         }
-        public User User 
+        public User User
         {
             get => user;
             internal set => user = value;

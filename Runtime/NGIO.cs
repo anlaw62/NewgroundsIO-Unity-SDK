@@ -8,7 +8,7 @@ using UnityEngine.Scripting;
 
 namespace Newgrounds
 {
-    public class NGIO:IDisposable
+    public class NGIO : IDisposable
     {
         public static NGIO Instance { get; private set; }
         private Session session;
@@ -19,7 +19,7 @@ namespace Newgrounds
         private byte[] pingRawRequest;
 
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
-  
+
         private NGIO(string appId, string aesKey, string sessionId = null)
         {
             Instance = this;
@@ -220,7 +220,7 @@ namespace Newgrounds
             DateTime now = DateTime.Now;
             while ((now - lastTimeSaved) < saveDelay)
             {
-               
+
                 await UniTask.Yield();
                 now = DateTime.Now;
             }
@@ -263,7 +263,7 @@ namespace Newgrounds
             Request.ExecuteObject executeObject = NewExecuteObject("CloudSave.loadSlot");
             executeObject.Parameters = new() { { "id", slotId } };
             Response<SaveSlot> resp = await SendRequest<SaveSlot>(executeObject);
-  
+
             return await LoadSlot(resp.Result["slot"]);
         }
         public async UniTask<string[]> LoadSlots()
@@ -384,7 +384,7 @@ namespace Newgrounds
                     if (response == null)
                     {
                         Debug.LogError("response is null");
-               
+
                     }
                     if (!response.Success)
                     {

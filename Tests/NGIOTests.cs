@@ -1,14 +1,10 @@
-using NUnit.Framework;
-using UnityEditor;
-using Newtonsoft.Json;
-using UnityEngine;
-using Newtonsoft.Json.Linq;
-using UnityEngine.TestTools;
 using Cysharp.Threading.Tasks;
-using System;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 using System.Linq;
-using System.Collections;
 using System.Threading.Tasks;
+using UnityEditor;
+using UnityEngine;
 namespace Newgrounds.Tests
 {
     public class NGIOTests
@@ -61,7 +57,7 @@ namespace Newgrounds.Tests
             Assert.False(medals.First(m => m.Id == 83699).Unlocked, "medal 2 is  unlocked, this cant be");
 
         }
-        [Test,TestCase("BVCs", "{vb==ssjw7tyw7t13sahjdgSAHJfdgdsKFGKDSU33333fsasdasda9dggggg}")]
+        [Test, TestCase("BVCs", "{vb==ssjw7tyw7t13sahjdgSAHJfdgdsKFGKDSU33333fsasdasda9dggggg}")]
         public async Task TestSaveLoad(string save1, string save2)
         {
             string[] dataToSave = new string[2] { save1, save2 };
@@ -79,7 +75,7 @@ namespace Newgrounds.Tests
             }
 
         }
-        [Test,TestCase(14734,847743939),TestCase(14735,1099)]
+        [Test, TestCase(14734, 847743939), TestCase(14735, 1099)]
         public async Task PostScoreTest(int id, int score)
         {
 
@@ -87,14 +83,14 @@ namespace Newgrounds.Tests
             Score[] scores = await ngio.GetScores(id, 5);
             Assert.True(scores.FirstOrDefault(s => s.Value == score) != null, "score hasnt been set");
         }
-        [Test,TestCase(14734)]
+        [Test, TestCase(14734)]
         public async Task GetScoresTest(int id)
         {
             await ngio.PostScore(id, 1);
             Score[] scores = await ngio.GetScores(id, 5);
             Assert.True(scores != null, "scores is null");
             Assert.True(scores.Length != 0, "score array is empty");
-            foreach(Score score in scores)
+            foreach (Score score in scores)
             {
                 Assert.True(score != null, "score is null");
                 Assert.False(string.IsNullOrEmpty(score.FormattedValue), "formatted value is null or empty");
@@ -103,9 +99,9 @@ namespace Newgrounds.Tests
                 Assert.False(string.IsNullOrEmpty(user.Name), "username is empty or null");
                 Assert.True(user.Url != null, "user url is null");
                 Assert.True(user.Id != 0, "user id is invalid");
-            
+
             }
         }
-        
+
     }
 }
