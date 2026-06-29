@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using System;
+using System.Collections;
 using UnityEngine;
 namespace Newgrounds
 {
@@ -7,10 +9,18 @@ namespace Newgrounds
         private void Awake()
         {
             NGIO.Instance.Ping().Forget();
+            StartCoroutine(Ping());
         }
-        private void Update()
+        private IEnumerator Ping()
         {
-            if (Application.isFocused) NGIO.Instance.Ping().Forget();
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(60f * 5f);
+              
+                    NGIO.Instance.Ping().Forget();
+
+            }
         }
+     
     }
 }

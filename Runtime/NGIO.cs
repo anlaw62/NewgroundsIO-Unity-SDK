@@ -110,13 +110,10 @@ namespace Newgrounds
             {
                 return;
             }
-            DateTime now = DateTime.Now;
-            if ((now - lastTimePing) > timePingDelay)
-            {
-                lastTimePing = now;
+         
+               
                 SendRequest<string>("Gateway.ping").Forget();
 
-            }
         }
         public async UniTask PostScore(int leaderboardId, int value, string tag = null)
         {
