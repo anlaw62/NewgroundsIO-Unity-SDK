@@ -36,20 +36,15 @@ namespace Newgrounds
                 NullValueHandling = NullValueHandling.Ignore
             };
             sessionTaskSource = new();
+#if UNITY_EDITOR
             if (!string.IsNullOrEmpty(sessionId))
             {
                 session = new() { Id = sessionId };
             }
-#if !UNITY_EDITOR
-            else
-            {
+#else
 
-            session = GetSessionFromUrl();
-         
-
-        }
+    session = GetSessionFromUrl();
 #endif
-
             sessionTaskSource.TrySetResult();
             pingRawRequest = MakeWebRequest(NewExecuteObject("Gateway.ping")).uploadHandler.data;
             CreatePinger();
