@@ -16,7 +16,6 @@ namespace Newgrounds
         public static byte[] AesKey { get; private set; }
         private static UniTaskCompletionSource sessionTaskSource;
         private static JsonSerializerSettings serializerSettings;
-        internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
 
 
@@ -299,6 +298,8 @@ namespace Newgrounds
         }
         private static UnityWebRequest MakeWebRequest(byte[] bytes)
         {
+            const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
+
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
                 uploadHandler = new UploadHandlerRaw(bytes)
