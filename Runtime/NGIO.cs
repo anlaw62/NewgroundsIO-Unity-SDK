@@ -8,21 +8,21 @@ using UnityEngine.Scripting;
 
 namespace Newgrounds
 {
-    public class NGIO : IDisposable
+    public static class NGIO
     {
-        public static NGIO Instance { get; private set; }
-        private Session session;
-        public string AppId { get; }
-        public byte[] AesKey { get; }
-        private readonly UniTaskCompletionSource sessionTaskSource;
-        private JsonSerializerSettings serializerSettings;
-        private byte[] pingRawRequest;
-
+   
+        private static Session session;
+        public static string AppId { get; private set; }
+        public static byte[] AesKey { get; private set; }
+        private static UniTaskCompletionSource sessionTaskSource;
+        private static JsonSerializerSettings serializerSettings;
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
-        private NGIO(string appId, string aesKey, string sessionId = null)
+        
+     
+        public static void Init(string appId, string aesKey, string sessionId = null)
         {
-            Instance = this;
+         
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
 
@@ -46,26 +46,11 @@ namespace Newgrounds
     session = GetSessionFromUrl();
 #endif
             sessionTaskSource.TrySetResult();
-            pingRawRequest = MakeWebRequest(NewExecuteObject("Gateway.ping")).uploadHandler.data;
+           
             CreatePinger();
+       
         }
-        public void Dispose()
-        {
-            Instance = null;
-        }
-        public static NGIO Init(string appId, string aesKey, string sessionId = null)
-        {
-            if (Instance == null)
-            {
-                return new(appId, aesKey, sessionId);
-            }
-            else
-            {
-                Debug.LogError("Attempt of creating second ngio instance");
-            }
-            return null;
-        }
-        public bool IsValidSession
+        public static bool IsValidSession
         {
             get
             {
@@ -81,12 +66,12 @@ namespace Newgrounds
                 pingerGo.AddComponent<NGPinger>();
             }
         }
-        private DateTime lastTimePing;
-        private DateTime lastTimeSaved;
-        private readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
-        private readonly TimeSpan timePingDelay = TimeSpan.FromMinutes(15);
+     
+        private static DateTime lastTimeSaved;
+        private static readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
+   
         [Preserve]
-        private Session GetSessionFromUrl()
+        private static Session GetSessionFromUrl()
         {
             Uri uri = new(Application.absoluteURL);
             Dictionary<string, string> uriParams = URIParamsUtility.GetParams(uri);
@@ -104,7 +89,7 @@ namespace Newgrounds
             }
             return null;
         }
-        public async UniTask Ping()
+        public static async UniTask Ping()
         {
             if (!IsValidSession)
             {
@@ -115,7 +100,7 @@ namespace Newgrounds
                 SendRequest<string>("Gateway.ping").Forget();
 
         }
-        public async UniTask PostScore(int leaderboardId, int value, string tag = null)
+        public static async UniTask PostScore(int leaderboardId, int value, string tag = null)
         {
             await GetSession();
             if (!IsValidSession)
@@ -133,7 +118,7 @@ namespace Newgrounds
             executeObject.Encrypt(AesKey, serializerSettings);
             await SendRequest(executeObject);
         }
-        public async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
+        public static async UniTask<Score[]> GetScores(int leaderboardId, int limit, Period period = Period.Year, int skip = 0, bool social = false, int userId = 0, string tag = null)
         {
             Request.ExecuteObject executeObject = NewExecuteObject("ScoreBoard.getScores");
             string periodStr;
@@ -167,12 +152,12 @@ namespace Newgrounds
             Response<Score[]> resp = await SendRequest<Score[]>(executeObject);
             return resp.Result["scores"];
         }
-        public async UniTask<Medal[]> GetMedals()
+        public static async UniTask<Medal[]> GetMedals()
         {
             Response<Medal[]> resp = await SendRequest<Medal[]>("Medal.getList");
             return resp.Result["medals"];
         }
-        public async UniTask UnlockMedal(int id)
+        public static async UniTask UnlockMedal(int id)
         {
             await GetSession();
             if (!IsValidSession)
@@ -190,7 +175,7 @@ namespace Newgrounds
             Debug.Log($"unlockingAchievment {id}");
         }
 
-        private string saveDataToSet;
+        private static string saveDataToSet;
 
         /// <summary>
         /// 
@@ -198,7 +183,7 @@ namespace Newgrounds
         /// <param name="slotId">0-indexed number of slot</param>
         /// <param name="saveData">json</param>
         /// <returns></returns>
-        public async UniTask SaveSlot(int slotId, string saveData)
+        public static async UniTask SaveSlot(int slotId, string saveData)
         {
             if (!IsValidSession)
             {
@@ -231,7 +216,7 @@ namespace Newgrounds
         /// 
         /// </summary>
         /// <returns>Session of authorised user. Returns null if user is not authorised</returns>
-        public async UniTask<Session> GetSession()
+        public static async UniTask<Session> GetSession()
         {
 
             await sessionTaskSource.Task;
@@ -243,7 +228,7 @@ namespace Newgrounds
         /// </summary>
         /// <param name="slotId">0-indexed number of slot</param>
         /// <returns></returns>
-        public async UniTask<string> LoadSlot(int slotId)
+        public static async UniTask<string> LoadSlot(int slotId)
         {
             await GetSession();
             if (!IsValidSession)
@@ -258,7 +243,7 @@ namespace Newgrounds
 
             return await LoadSlot(resp.Result["slot"]);
         }
-        public async UniTask<string[]> LoadSlots()
+        public static async UniTask<string[]> LoadSlots()
         {
             await GetSession();
             if (!IsValidSession)
@@ -282,7 +267,7 @@ namespace Newgrounds
             }
             return res;
         }
-        private async UniTask<string> LoadSlot(SaveSlot slot)
+        private static async UniTask<string> LoadSlot(SaveSlot slot)
         {
             if (slot.Url == null)
             {
@@ -295,7 +280,7 @@ namespace Newgrounds
                 return webRequest.downloadHandler.text;
             }
         }
-        private async UniTask<Session> StartSesion()
+        private static async UniTask<Session> StartSesion()
         {
 
             Response<Session> res = await SendRequest<Session>("App.startSession");
@@ -303,16 +288,16 @@ namespace Newgrounds
         }
 
 
-        private Request MakeRequest(Request.ExecuteObject executeObject)
+        private static Request MakeRequest(Request.ExecuteObject executeObject)
         {
 
             return new() { AppId = AppId, ExecuteObj = executeObject, SessionId = session?.Id };
         }
-        private Request.ExecuteObject NewExecuteObject(string component)
+        private static Request.ExecuteObject NewExecuteObject(string component)
         {
             return new() { Component = component };
         }
-        private UnityWebRequest MakeWebRequest(byte[] bytes)
+        private static UnityWebRequest MakeWebRequest(byte[] bytes)
         {
             UnityWebRequest webRequest = new(GATEWAY_URI, "POST")
             {
@@ -322,40 +307,40 @@ namespace Newgrounds
             webRequest.SetRequestHeader("Content-Type", "application/json");
             return webRequest;
         }
-        private UnityWebRequest MakeWebRequest(Request request)
+        private static UnityWebRequest MakeWebRequest(Request request)
         {
 
             return MakeWebRequest(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request, serializerSettings)));
         }
-        private UnityWebRequest MakeWebRequest(Request.ExecuteObject executeObject)
+        private static UnityWebRequest MakeWebRequest(Request.ExecuteObject executeObject)
         {
             return MakeWebRequest(MakeRequest(executeObject));
         }
-        private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(string component)
+        private static async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(string component)
         {
             return await SendRequest<ResultDataType>(NewExecuteObject(component));
         }
 
-        private async UniTask SendRequest(Request request)
+        private static async UniTask SendRequest(Request request)
         {
             UnityWebRequest webRequest = MakeWebRequest(request);
 
 
             await webRequest.SendWebRequest().ToUniTask();
         }
-        private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request.ExecuteObject executeObject)
+        private static async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request.ExecuteObject executeObject)
         {
             Request request = MakeRequest(executeObject);
             return await SendRequest<ResultDataType>(request);
         }
-        private async UniTask SendRequest(Request.ExecuteObject executeObject)
+        private static async UniTask SendRequest(Request.ExecuteObject executeObject)
         {
             Request request = MakeRequest(executeObject);
             await SendRequest(request);
         }
 
 
-        private async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request request)
+        private static async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(Request request)
         {
             using (UnityWebRequest webRequest = MakeWebRequest(request))
             {
