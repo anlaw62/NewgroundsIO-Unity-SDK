@@ -2,9 +2,12 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Scripting;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace Newgrounds
 {
@@ -16,8 +19,10 @@ namespace Newgrounds
         public static byte[] AesKey { get; private set; }
         private static UniTaskCompletionSource sessionTaskSource;
         private static JsonSerializerSettings serializerSettings;
-
-
+        private static Dictionary<int, int> medals=new();
+        private static UniTaskCompletionSource loadProgressSource=new();
+        private static SaveData[] saveDatas;
+        
 
         public static void Init(string appId, string aesKey, string sessionId = null)
         {
@@ -47,7 +52,39 @@ namespace Newgrounds
             sessionTaskSource.TrySetResult();
 
             CreatePinger();
+            LoadProgress().Forget();
+        }
+        private static async UniTaskVoid LoadProgress()
+        {
 
+            saveDatas = new SaveData[3] { new(), new(), new() };
+            string[] jsons =await LoadSlots();
+            if (jsons != null)
+            {
+                for (int i = 0; i < jsons.Length; i++)
+                {
+                    try
+                    {
+                        saveDatas[i] = JsonConvert.DeserializeObject<SaveData>(jsons[i]);
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+                }
+            }
+         
+    
+          
+                Dictionary<int, int> savedProgress = saveDatas[0].MedalProgress;
+                if (savedProgress != null)
+                {
+                    medals = savedProgress;
+                }
+
+     
+ 
+            loadProgressSource.TrySetResult();
         }
         public static bool IsValidSession
         {
@@ -156,6 +193,31 @@ namespace Newgrounds
             Response<Medal[]> resp = await SendRequest<Medal[]>("Medal.getList");
             return resp.Result["medals"];
         }
+        public static void AddProgress(MedalEntry achievmentData, int progress)
+        {
+            loadProgressSource.Task.ContinueWith(() =>
+            {
+
+
+                int id = achievmentData.Id;
+                if (!medals.ContainsKey(id))
+                {
+                    medals[id] = 0;
+                }
+                medals[id] += progress;
+                int maxProgress = achievmentData.MaxProgress;
+                medals[id] = Mathf.Clamp(medals[id], 0, maxProgress);
+                if (medals[id] == maxProgress)
+                {
+                    UnlockMedal(id).Forget();
+                }
+                SaveSlot(0).Forget();
+            }).Forget();
+        }
+        public static void IncrementProgress(MedalEntry medalEntry)
+        {
+            AddProgress(medalEntry, 1);
+        }
         public static async UniTask UnlockMedal(int id)
         {
             await GetSession();
@@ -180,19 +242,34 @@ namespace Newgrounds
         /// 
         /// </summary>
         /// <param name="slotId">0-indexed number of slot</param>
-        /// <param name="saveData">json</param>
+        /// <param name="customData">json</param>
         /// <returns></returns>
-        public static async UniTask SaveSlot(int slotId, string saveData)
+        public static  UniTask SaveSlot(int slotId, string customData)
         {
+            if (!IsValidSession)
+            {
+                return default;
+            }
+            saveDatas[slotId].Data = customData;
+          return  SaveSlot(slotId);
+        }
+        public static async UniTask SaveSlot(int slotId)
+        {
+            if(loadProgressSource.Task.Status!= UniTaskStatus.Succeeded)
+            {
+                return;
+            }
             if (!IsValidSession)
             {
 
                 Debug.LogError("Cant saveslot without session");
                 return;
             }
-            slotId += 1;
 
-            saveDataToSet = saveData;
+            SaveData saveData = saveDatas[slotId];
+
+            string json = JsonConvert.SerializeObject(saveData);
+            saveDataToSet = json;
             DateTime now = DateTime.Now;
             while ((now - lastTimeSaved) < saveDelay)
             {
@@ -204,7 +281,7 @@ namespace Newgrounds
             Request.ExecuteObject executeObj = NewExecuteObject("CloudSave.setData");
             executeObj.Parameters = new()
             {
-                {"id",slotId },
+                {"id",slotId+1 },
                 {"data",saveDataToSet }
             };
             lastTimeSaved = now;
@@ -262,7 +339,9 @@ namespace Newgrounds
                     res[i] = await LoadSlot(slots[i]);
 
                 }
-                catch { }
+                catch {
+                
+                }
             }
             return res;
         }
@@ -370,5 +449,6 @@ namespace Newgrounds
 
             }
         }
+       
     }
 }

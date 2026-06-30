@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using UnityEngine.Scripting;
 namespace Newgrounds
 {
@@ -16,5 +17,10 @@ namespace Newgrounds
         private int id;
         [JsonProperty]
         private string url;
+    }
+   internal class SaveData
+    {
+        public Dictionary<int, int> MedalProgress;
+        public string Data;
     }
 }
