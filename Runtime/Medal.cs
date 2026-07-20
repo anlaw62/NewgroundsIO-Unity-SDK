@@ -38,10 +38,4 @@ namespace Newgrounds
         [JsonProperty]
         private int value;
     }
-
-   public class MedalEntry
-    {
-        public int MaxProgress;
-        public int Id;
-    }
 }
