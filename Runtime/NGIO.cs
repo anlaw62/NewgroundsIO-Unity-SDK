@@ -10,7 +10,7 @@ namespace Newgrounds
 {
     public static class NGIO
     {
-
+   
         private static Session session;
         public static string AppId { get; private set; }
         public static byte[] AesKey { get; private set; }
@@ -18,11 +18,11 @@ namespace Newgrounds
         private static JsonSerializerSettings serializerSettings;
         internal const string GATEWAY_URI = "https://www.newgrounds.io/gateway_v3.php";
 
-
-
+        
+     
         public static void Init(string appId, string aesKey, string sessionId = null)
         {
-
+         
             AppId = appId;
             AesKey = Convert.FromBase64String(aesKey);
 
@@ -46,9 +46,9 @@ namespace Newgrounds
     session = GetSessionFromUrl();
 #endif
             sessionTaskSource.TrySetResult();
-
+           
             CreatePinger();
-
+       
         }
         public static bool IsValidSession
         {
@@ -66,10 +66,10 @@ namespace Newgrounds
                 pingerGo.AddComponent<NGPinger>();
             }
         }
-
+     
         private static DateTime lastTimeSaved;
         private static readonly TimeSpan saveDelay = TimeSpan.FromSeconds(4);
-
+   
         [Preserve]
         private static Session GetSessionFromUrl()
         {
@@ -95,9 +95,9 @@ namespace Newgrounds
             {
                 return;
             }
-
-
-            SendRequest<string>("Gateway.ping").Forget();
+         
+               
+                SendRequest<string>("Gateway.ping").Forget();
 
         }
         public static async UniTask PostScore(int leaderboardId, int value, string tag = null)
@@ -312,7 +312,10 @@ namespace Newgrounds
 
             return MakeWebRequest(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request, serializerSettings)));
         }
-
+        private static UnityWebRequest MakeWebRequest(Request.ExecuteObject executeObject)
+        {
+            return MakeWebRequest(MakeRequest(executeObject));
+        }
         private static async UniTask<Response<ResultDataType>> SendRequest<ResultDataType>(string component)
         {
             return await SendRequest<ResultDataType>(NewExecuteObject(component));
