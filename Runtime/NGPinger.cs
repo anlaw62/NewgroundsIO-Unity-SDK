@@ -8,7 +8,7 @@ namespace Newgrounds
     {
         private void Awake()
         {
-            NGIO.Ping().Forget();
+            NGIO.Instance.Ping().Forget();
             StartCoroutine(Ping());
         }
         private IEnumerator Ping()
@@ -17,7 +17,7 @@ namespace Newgrounds
             {
                 yield return new WaitForSecondsRealtime(60f * 5f);
               
-                    NGIO.Ping().Forget();
+                    NGIO.Instance.Ping().Forget();
 
             }
         }

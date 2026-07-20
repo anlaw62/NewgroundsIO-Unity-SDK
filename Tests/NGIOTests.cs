@@ -9,20 +9,20 @@ namespace Newgrounds.Tests
 {
     public class NGIOTests
     {
-   
+        private NGIO ngio;
         [SetUp]
         public void SetUp()
         {
-          
+            if (NGIO.Instance != null) NGIO.Instance.Dispose();
             JObject appInfo = JObject.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>(AssetDatabase.FindAssets("App").Select(g => AssetDatabase.GUIDToAssetPath(g)).First()).text);
 
-            NGIO.Init(appInfo["AppId"].ToObject<string>(), appInfo["AesKey"].ToObject<string>(), appInfo["SessionId"].ToObject<string>());
+            ngio = NGIO.Init(appInfo["AppId"].ToObject<string>(), appInfo["AesKey"].ToObject<string>(), appInfo["SessionId"].ToObject<string>());
         }
         [Test]
         public async Task TestGetMedals()
         {
 
-            Medal[] medals = await NGIO.GetMedals();
+            Medal[] medals = await ngio.GetMedals();
 
             void AssertMedal(int idx, bool secret = false)
             {
@@ -50,8 +50,8 @@ namespace Newgrounds.Tests
         public async Task UnlockMedal()
         {
 
-            await UniTask.WhenAll(NGIO.UnlockMedal(83697), NGIO.UnlockMedal(83698));
-            Medal[] medals = await NGIO.GetMedals();
+            await UniTask.WhenAll(ngio.UnlockMedal(83697), ngio.UnlockMedal(83698));
+            Medal[] medals = await ngio.GetMedals();
             Assert.True(medals.First(m => m.Id == 83697).Unlocked, "medal 0 is not unlocked");
             Assert.True(medals.First(m => m.Id == 83698).Unlocked, "medal 1 is not unlocked");
             Assert.False(medals.First(m => m.Id == 83699).Unlocked, "medal 2 is  unlocked, this cant be");
@@ -65,10 +65,10 @@ namespace Newgrounds.Tests
 
             for (int i = 0; i < saveCount; i++)
             {
-                NGIO.SaveSlot(i, "nnnnnn").Forget();
-                await NGIO.SaveSlot(i, dataToSave[i]);
+                ngio.SaveSlot(i, "nnnnnn").Forget();
+                await ngio.SaveSlot(i, dataToSave[i]);
             }
-            string[] saved = await NGIO.LoadSlots();
+            string[] saved = await ngio.LoadSlots();
             for (int i = 0; i < saveCount; i++)
             {
                 Assert.True(saved[i] == dataToSave[i], $"save {i} is incorrect,saved:{saved[i]}");
@@ -79,15 +79,15 @@ namespace Newgrounds.Tests
         public async Task PostScoreTest(int id, int score)
         {
 
-            await NGIO.PostScore(id, score);
-            Score[] scores = await NGIO.GetScores(id, 5);
+            await ngio.PostScore(id, score);
+            Score[] scores = await ngio.GetScores(id, 5);
             Assert.True(scores.FirstOrDefault(s => s.Value == score) != null, "score hasnt been set");
         }
         [Test, TestCase(14734)]
         public async Task GetScoresTest(int id)
         {
-            await NGIO.PostScore(id, 1);
-            Score[] scores = await NGIO .GetScores(id, 5);
+            await ngio.PostScore(id, 1);
+            Score[] scores = await ngio.GetScores(id, 5);
             Assert.True(scores != null, "scores is null");
             Assert.True(scores.Length != 0, "score array is empty");
             foreach (Score score in scores)
