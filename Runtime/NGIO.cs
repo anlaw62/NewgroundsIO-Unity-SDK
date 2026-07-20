@@ -279,6 +279,14 @@ namespace Newgrounds
                 return webRequest.downloadHandler.text;
             }
         }
+        private static async UniTask<Session> StartSesion()
+        {
+
+            Response<Session> res = await SendRequest<Session>("App.startSession");
+            return res.Result["session"];
+        }
+
+
         private static Request MakeRequest(Request.ExecuteObject executeObject)
         {
 
